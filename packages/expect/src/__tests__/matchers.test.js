@@ -550,6 +550,25 @@ describe('.toEqual()', () => {
     expect(() =>
       jestExpect({a: 1}).not.toEqual({a: 1}),
     ).toThrowErrorMatchingSnapshot();
+
+    expect(() =>
+      jestExpect({
+        a: 'a',
+        b: 'b',
+      }).toEqual({
+        a: 'x',
+        b: expect.any(String),
+      }),
+    ).toThrowErrorMatchingSnapshot();
+
+    expect(() =>
+      jestExpect({a: 'a', b: 'b', c: 'c', d: 'd'}).toEqual(
+        expect.objectContaining({
+          a: 'x',
+          b: expect.any(String),
+        }),
+      ),
+    ).toThrowErrorMatchingSnapshot();
   });
 
   test('symbol based keys in arrays are processed correctly', () => {
@@ -1311,5 +1330,18 @@ describe('toMatchObject()', () => {
         jestExpect(n1).toMatchObject(n2),
       ).toThrowErrorMatchingSnapshot();
     });
+  });
+
+  test('failure message matches the expected snapshot', () => {
+    expect(() =>
+      jestExpect({
+        a: 'a',
+        b: 'b',
+        c: 'c',
+      }).toMatchObject({
+        a: 'x',
+        b: expect.any(String),
+      }),
+    ).toThrowErrorMatchingSnapshot();
   });
 });
