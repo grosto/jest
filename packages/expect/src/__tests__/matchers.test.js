@@ -2105,6 +2105,7 @@ describe('toMatchObject()', () => {
     });
   });
 
+<<<<<<< HEAD
   it('does not match properties up in the prototype chain', () => {
     const a = {};
     a.ref = a;
@@ -2118,6 +2119,18 @@ describe('toMatchObject()', () => {
     jestExpect(b).not.toMatchObject(matcher);
     expect(() =>
       jestExpect(b).toMatchObject(matcher),
+=======
+  test('failure message matches the expected snapshot', () => {
+    expect(() =>
+      jestExpect({
+        a: 'a',
+        b: 'b',
+        c: 'c',
+      }).toMatchObject({
+        a: 'x',
+        b: expect.any(String),
+      }),
+>>>>>>> 4576618b6... added new snapshot tests for error messages
     ).toThrowErrorMatchingSnapshot();
   });
 });
