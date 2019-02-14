@@ -5346,6 +5346,11 @@ diacritics-map@^0.1.0:
   resolved "https://registry.yarnpkg.com/diacritics-map/-/diacritics-map-0.1.0.tgz#6dfc0ff9d01000a2edf2865371cac316e94977af"
   integrity sha1-bfwP+dAQAKLt8oZTccrDFulJd68=
 
+diff-sequences@^24.9.0:
+  version "24.9.0"
+  resolved "https://registry.yarnpkg.com/diff-sequences/-/diff-sequences-24.9.0.tgz#5715d6244e2aa65f48bba0bc972db0b0b11e95b5"
+  integrity sha512-Dj6Wk3tWyTE+Fo1rW8v0Xhwk80um6yFYKbuAxc9c3EZxIHFDYwbi34Uk42u1CdnIiVorvt4RmlSDjIPyzGC2ew==
+
 diff@3.5.0:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/diff/-/diff-3.5.0.tgz#800c0dd1e0a8bfbc95835c202ad220fe317e5a12"
@@ -6424,6 +6429,14 @@ fast-check@^1.13.0:
   version "1.22.2"
   resolved "https://registry.yarnpkg.com/fast-check/-/fast-check-1.22.2.tgz#822b572e5a9513ab61ce264f99cc26e76c746ab5"
   integrity sha512-c5TzJXjw9q9BpUsszLvHHN1J/7kwPYbBvCuoc9+pGeF0DaKWBtK/htEHohz5Tfz4lDPI42oOla1HYeEndfYHKw==
+  dependencies:
+    pure-rand "^2.0.0"
+    tslib "^1.10.0"
+
+fast-check@^1.23.0:
+  version "1.23.0"
+  resolved "https://registry.yarnpkg.com/fast-check/-/fast-check-1.23.0.tgz#7abe0059b192fb9025cd7d6640532fe8ab538746"
+  integrity sha512-MRxcYG4YHTzP8wbjPsl6lZeUpY9sBuYsp6/w8lWmSvgS0wBrhMSErVnHmt5zi9sDWROCd+H7bk2jpr6wzToM6w==
   dependencies:
     pure-rand "^2.0.0"
     tslib "^1.10.0"
@@ -8551,6 +8564,16 @@ isurl@^1.0.0-alpha5:
   dependencies:
     has-to-string-tag-x "^1.2.0"
     is-object "^1.0.1"
+
+jest-diff@^24.9.0:
+  version "24.9.0"
+  resolved "https://registry.yarnpkg.com/jest-diff/-/jest-diff-24.9.0.tgz#931b7d0d5778a1baf7452cb816e325e3724055da"
+  integrity sha512-qMfrTs8AdJE2iqrTp0hzh7kTd2PQWrsFyj9tORoKmu32xjPjeE4NyjVRDz8ybYwqS2ik8N4hsIpiVTyFeo2lBQ==
+  dependencies:
+    chalk "^2.0.1"
+    diff-sequences "^24.9.0"
+    jest-get-type "^24.9.0"
+    pretty-format "^24.9.0"
 
 jest-docblock@^21.0.0:
   version "21.2.0"
@@ -12056,6 +12079,11 @@ react-is@^16.12.0, react-is@^16.8.1, react-is@^16.8.4, react-is@^16.9.0:
   version "16.12.0"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.12.0.tgz#2cc0fe0fba742d97fd527c42a13bec4eeb06241c"
   integrity sha512-rPCkf/mWBtKc97aLL9/txD8DZdemK0vkA3JMLShjlJB3Pj3s+lpf1KaBzMfQrAmhMQB0n1cU/SUGgKKBCe837Q==
+
+react-is@^16.13.0:
+  version "16.13.0"
+  resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.0.tgz#0f37c3613c34fe6b37cd7f763a0d6293ab15c527"
+  integrity sha512-GFMtL0vHkiBv9HluwNZTggSn/sCyEt9n02aM0dSAjGGyqyNlAyftYm4phPxdvCigG15JreC5biwxCgTAJZ7yAA==
 
 react-native@0.61.5:
   version "0.61.5"
