@@ -299,6 +299,25 @@ describe('.toStrictEqual()', () => {
         test: new TestClassA(1, 2),
       }).not.toStrictEqual({test: new TestClassA(1, 2)}),
     ).toThrowErrorMatchingSnapshot();
+
+    expect(() =>
+      jestExpect({
+        a: 'a',
+        b: 'b',
+      }).toStrictEqual({
+        a: 'x',
+        b: expect.any(String),
+      }),
+    ).toThrowErrorMatchingSnapshot();
+
+    expect(() =>
+      jestExpect({a: 'a', b: 'b', c: 'c', d: 'd'}).toStrictEqual(
+        expect.objectContaining({
+          a: 'x',
+          b: expect.any(String),
+        }),
+      ),
+    ).toThrowErrorMatchingSnapshot();
   });
 
   it('does not pass for different types', () => {

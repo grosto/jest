@@ -3309,6 +3309,41 @@ Expected: <green>{\\"test\\": {\\"a\\": 1, \\"b\\": 2}}</>
 Received: <red>{\\"test\\": {\\"a\\": 1, \\"b\\": 2}}</>"
 `;
 
+exports[`.toStrictEqual() matches the expected snapshot when it fails 3`] = `
+"<dim>expect(</><red>received</><dim>).toStrictEqual(</><green>expected</><dim>)</>
+
+Difference:
+
+<green>- Expected</>
+<red>+ Received</>
+
+<dim>  Object {</>
+<green>-   \\"a\\": \\"x\\",</>
+<green>-   \\"b\\": Any<String>,</>
+<red>+   \\"a\\": \\"a\\",</>
+<red>+   \\"b\\": \\"b\\",</>
+<dim>  }</>"
+`;
+
+exports[`.toStrictEqual() matches the expected snapshot when it fails 4`] = `
+"<dim>expect(</><red>received</><dim>).toStrictEqual(</><green>expected</><dim>)</>
+
+Difference:
+
+<green>- Expected</>
+<red>+ Received</>
+
+<green>- ObjectContaining {</>
+<green>-   \\"a\\": \\"x\\",</>
+<green>-   \\"b\\": Any<String>,</>
+<red>+ Object {</>
+<red>+   \\"a\\": \\"a\\",</>
+<red>+   \\"b\\": \\"b\\",</>
+<red>+   \\"c\\": \\"c\\",</>
+<red>+   \\"d\\": \\"d\\",</>
+<dim>  }</>"
+`;
+
 exports[`toMatchObject() {pass: false} expect([0]).toMatchObject([-0]) 1`] = `
 "<dim>expect(</><red>received</><dim>).toMatchObject(</><green>expected</><dim>)</>
 
