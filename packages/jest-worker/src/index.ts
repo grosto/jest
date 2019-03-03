@@ -53,16 +53,16 @@ function getExposedMethods(
  *     so they will get executed as soon as they can.
  *
  *   - Sticky method: if a "computeWorkerKey" method is provided within the
- *   config, the resulting string of this method will be used as a key.
- *   Every time this key is returned, it is guaranteed that your job will be
- *   processed by the same worker. This is specially useful if your workers are
- *   caching results.
+ *     config, the resulting string of this method will be used as a key.
+ *     Every time this key is returned, it is guaranteed that your job will be
+ *     processed by the same worker. This is specially useful if your workers
+ *     are caching results.
  */
 export default class JestWorker {
-  _ending: boolean;
-  _farm: Farm;
-  _options: FarmOptions;
-  _workerPool: WorkerPoolInterface;
+  private _ending: boolean;
+  private _farm: Farm;
+  private _options: FarmOptions;
+  private _workerPool: WorkerPoolInterface;
 
   constructor(workerPath: string, options?: FarmOptions) {
     this._options = {...options};
@@ -95,7 +95,10 @@ export default class JestWorker {
     this._bindExposedWorkerMethods(workerPath, this._options);
   }
 
-  _bindExposedWorkerMethods(workerPath: string, options: FarmOptions): void {
+  private _bindExposedWorkerMethods(
+    workerPath: string,
+    options: FarmOptions,
+  ): void {
     getExposedMethods(workerPath, options).forEach(name => {
       if (name.startsWith('_')) {
         return;
@@ -110,7 +113,10 @@ export default class JestWorker {
     });
   }
 
-  _callFunctionWithArgs(method: string, ...args: Array<any>): Promise<any> {
+  private _callFunctionWithArgs(
+    method: string,
+    ...args: Array<any>
+  ): Promise<any> {
     if (this._ending) {
       throw new Error('Farm is ended, no more calls can be done to it');
     }

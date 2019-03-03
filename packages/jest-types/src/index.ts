@@ -7,8 +7,9 @@
 
 import * as Config from './Config';
 import * as Console from './Console';
+import * as Matchers from './Matchers';
 import * as SourceMaps from './SourceMaps';
 import * as TestResult from './TestResult';
-import * as Mocks from './Mocks';
+import * as Global from './Global';
 
-export {Config, Console, SourceMaps, TestResult, Mocks};
+export {Config, Console, Matchers, SourceMaps, TestResult, Global};
