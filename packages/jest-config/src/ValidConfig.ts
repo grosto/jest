@@ -38,10 +38,12 @@ const initialOptions: Config.InitialOptions = {
       statements: 100,
     },
   },
-  // @ts-ignore: Missing from initial options... https://github.com/facebook/jest/pull/7923
-  cwd: '/root',
   dependencyExtractor: '<rootDir>/dependencyExtractor.js',
-  displayName: 'project-name',
+  // @ts-ignore TODO: type this properly
+  displayName: multipleValidOptions('test-config', {
+    color: 'blue',
+    name: 'test-config',
+  }),
   errorOnDeprecated: false,
   expand: false,
   extraGlobals: [],
@@ -57,6 +59,7 @@ const initialOptions: Config.InitialOptions = {
     hasteImplModulePath: '<rootDir>/haste_impl.js',
     platforms: ['ios', 'android'],
     providesModuleNodeModules: ['react', 'react-native'],
+    throwOnModuleCollision: false,
   },
   json: false,
   lastCommit: false,
@@ -111,6 +114,7 @@ const initialOptions: Config.InitialOptions = {
   ),
   testResultsProcessor: 'processor-node-module',
   testRunner: 'jasmine2',
+  testSequencer: '@jest/test-sequencer',
   testURL: 'http://localhost',
   timers: 'real',
   transform: {

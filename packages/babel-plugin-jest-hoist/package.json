@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-jest-hoist",
-  "version": "24.1.0",
+  "version": "24.6.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/facebook/jest.git",
@@ -18,5 +18,8 @@
   "devDependencies": {
     "@babel/types": "^7.3.3"
   },
-  "gitHead": "b16789230fd45056a7f2fa199bae06c7a1780deb"
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "04e6a66d2ba8b18bee080bb28547db74a255d2c7"
 }

@@ -2,7 +2,7 @@
 
 import runJest from '../runJest';
 
-jest.mock('jest-util');
+jest.mock('@jest/console');
 
 const processErrWriteFn = process.stderr.write;
 describe('runJest', () => {
@@ -16,7 +16,7 @@ describe('runJest', () => {
     await runJest({
       changedFilesPromise: Promise.resolve({repos: {git: {size: 0}}}),
       contexts: [],
-      globalConfig: {watch: true},
+      globalConfig: {testSequencer: '@jest/test-sequencer', watch: true},
       onComplete: () => null,
       outputStream: {},
       startRun: {},

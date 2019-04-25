@@ -14,7 +14,6 @@ export default function setFromArgv(
   options: Config.InitialOptions,
   argv: Config.Argv,
 ): Config.InitialOptions {
-  // $FlowFixMe: Seems like flow doesn't approve of string values
   const argvToOptions = Object.keys(argv)
     .filter(key => argv[key] !== undefined && specialArgs.indexOf(key) === -1)
     .reduce((options: {[key: string]: unknown}, key) => {
@@ -39,8 +38,9 @@ export default function setFromArgv(
         case 'moduleNameMapper':
         case 'transform':
         case 'haste':
-          if (isJSONString(argv[key])) {
-            options[key] = JSON.parse(argv[key]);
+          const str = argv[key];
+          if (isJSONString(str)) {
+            options[key] = JSON.parse(str);
           }
           break;
         default:

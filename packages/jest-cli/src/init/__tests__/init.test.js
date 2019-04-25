@@ -3,8 +3,6 @@
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @flow
  */
 
 /* eslint-disable no-eval */
@@ -27,17 +25,13 @@ const consoleLog = console.log;
 
 describe('init', () => {
   beforeEach(() => {
-    // $FlowFixMe mock console.log to reduce noise from the tests
     console.log = jest.fn();
-    // $FlowFixMe mock
     fs.writeFileSync = jest.fn();
   });
 
   afterEach(() => {
     jest.clearAllMocks();
-    // $FlowFixMe
     console.log = consoleLog;
-    // $FlowFixMe mock
     fs.writeFileSync = writeFileSync;
   });
 

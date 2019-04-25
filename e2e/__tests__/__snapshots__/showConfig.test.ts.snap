@@ -24,7 +24,8 @@ exports[`--showConfig outputs config info and exits 1`] = `
       "globals": {},
       "haste": {
         "computeSha1": false,
-        "providesModuleNodeModules": []
+        "providesModuleNodeModules": [],
+        "throwOnModuleCollision": false
       },
       "moduleDirectories": [
         "node_modules"
@@ -100,6 +101,7 @@ exports[`--showConfig outputs config info and exits 1`] = `
     "filter": null,
     "globalSetup": null,
     "globalTeardown": null,
+    "json": false,
     "listTests": false,
     "maxConcurrency": 5,
     "maxWorkers": "[maxWorkers]",
@@ -115,6 +117,7 @@ exports[`--showConfig outputs config info and exits 1`] = `
     "testFailureExitCode": 1,
     "testPathPattern": "",
     "testResultsProcessor": null,
+    "testSequencer": "<<REPLACED_JEST_PACKAGES_DIR>>/jest-test-sequencer/build/index.js",
     "updateSnapshot": "all",
     "useStderr": false,
     "verbose": null,

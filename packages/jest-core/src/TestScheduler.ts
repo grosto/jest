@@ -7,7 +7,7 @@
 
 import chalk from 'chalk';
 import {formatExecError} from 'jest-message-util';
-import {Config, TestResult} from '@jest/types';
+import {Config} from '@jest/types';
 import snapshot from 'jest-snapshot';
 import TestRunner, {Test} from 'jest-runner';
 import {Context} from 'jest-runtime';
@@ -17,18 +17,20 @@ import {
   NotifyReporter,
   SummaryReporter,
   VerboseReporter,
-  // @ts-ignore: Not migrated to TS
+  Reporter,
 } from '@jest/reporters';
 import exit from 'exit';
 import {
   addResult,
+  AggregatedResult,
   buildFailureTestResult,
   makeEmptyAggregatedTestResult,
-} from './testResultHelpers';
+  SerializableError,
+  TestResult,
+} from '@jest/test-result';
 import ReporterDispatcher from './ReporterDispatcher';
 import TestWatcher from './TestWatcher';
 import {shouldRunInBand} from './testSchedulerHelper';
-import {Reporter} from './types';
 
 // The default jest-runner is required because it is the default test runner
 // and required implicitly through the `runner` ProjectConfig option.
@@ -84,14 +86,9 @@ export default class TestScheduler {
       getEstimatedTime(timings, this._globalConfig.maxWorkers) / 1000,
     );
 
-    const runInBand = shouldRunInBand(
-      tests,
-      this._globalConfig.watch || this._globalConfig.watchAll,
-      this._globalConfig.maxWorkers,
-      timings,
-    );
+    const runInBand = shouldRunInBand(tests, timings, this._globalConfig);
 
-    const onResult = async (test: Test, testResult: TestResult.TestResult) => {
+    const onResult = async (test: Test, testResult: TestResult) => {
       if (watcher.isInterrupted()) {
         return Promise.resolve();
       }
@@ -127,10 +124,7 @@ export default class TestScheduler {
       return this._bailIfNeeded(contexts, aggregatedResults, watcher);
     };
 
-    const onFailure = async (
-      test: Test,
-      error: TestResult.SerializableError,
-    ) => {
+    const onFailure = async (test: Test, error: SerializableError) => {
       if (watcher.isInterrupted()) {
         return;
       }
@@ -346,7 +340,7 @@ export default class TestScheduler {
 
   private _bailIfNeeded(
     contexts: Set<Context>,
-    aggregatedResults: TestResult.AggregatedResult,
+    aggregatedResults: AggregatedResult,
     watcher: TestWatcher,
   ): Promise<void> {
     if (

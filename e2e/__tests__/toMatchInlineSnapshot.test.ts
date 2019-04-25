@@ -52,7 +52,7 @@ test('basic support', () => {
     });
     const {stderr, status} = runJest(DIR, ['-w=1', '--ci=false', filename]);
     const fileAfter = readFile(filename);
-    expect(stderr).toMatch('Received value does not match stored snapshot');
+    expect(stderr).toMatch('Snapshot name: `inline snapshots 1`');
     expect(status).toBe(1);
     expect(wrap(fileAfter)).toMatchSnapshot('snapshot mismatch');
   }
@@ -68,6 +68,33 @@ test('basic support', () => {
     expect(stderr).toMatch('1 snapshot updated from 1 test suite.');
     expect(status).toBe(0);
     expect(wrap(fileAfter)).toMatchSnapshot('snapshot updated');
+  }
+});
+
+test('do not indent empty lines', () => {
+  const filename = 'empty-line-indent.test.js';
+  const template = makeTemplate(
+    `test('inline snapshots', () => expect($1).toMatchInlineSnapshot());\n`,
+  );
+
+  {
+    writeFiles(TESTS_DIR, {
+      [filename]: template(['`hello\n\nworld`']),
+    });
+    const {stderr, status} = runJest(DIR, ['-w=1', '--ci=false', filename]);
+    const fileAfter = readFile(filename);
+    expect(stderr).toMatch('1 snapshot written from 1 test suite.');
+    expect(status).toBe(0);
+    expect(wrap(fileAfter)).toMatchSnapshot('initial write');
+  }
+
+  {
+    const {stderr, status} = runJest(DIR, ['-w=1', '--ci=false', filename]);
+    const fileAfter = readFile(filename);
+    expect(stderr).toMatch('Snapshots:   1 passed, 1 total');
+    expect(stderr).not.toMatch('1 snapshot written from 1 test suite.');
+    expect(status).toBe(0);
+    expect(wrap(fileAfter)).toMatchSnapshot('snapshot passed');
   }
 });
 
@@ -101,9 +128,7 @@ test('handles property matchers', () => {
     });
     const {stderr, status} = runJest(DIR, ['-w=1', '--ci=false', filename]);
     const fileAfter = readFile(filename);
-    expect(stderr).toMatch(
-      'Received value does not match snapshot properties for "handles property matchers 1".',
-    );
+    expect(stderr).toMatch('Snapshot name: `handles property matchers 1`');
     expect(stderr).toMatch('Snapshots:   1 failed, 1 total');
     expect(status).toBe(1);
     expect(wrap(fileAfter)).toMatchSnapshot('snapshot failed');

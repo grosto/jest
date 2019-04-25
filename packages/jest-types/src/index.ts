@@ -5,11 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import * as Circus from './Circus';
 import * as Config from './Config';
-import * as Console from './Console';
-import * as Matchers from './Matchers';
-import * as SourceMaps from './SourceMaps';
-import * as TestResult from './TestResult';
 import * as Global from './Global';
 
-export {Config, Console, Matchers, SourceMaps, TestResult, Global};
+export {Circus, Config, Global};

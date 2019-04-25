@@ -217,8 +217,21 @@ export const getRunner = (
     rootDir,
   });
 
-export const isJSONString = (text?: string) =>
-  text &&
+type JSONString = string & {readonly $$type: never}; // newtype
+export const isJSONString = (text?: JSONString | string): text is JSONString =>
+  text != null &&
   typeof text === 'string' &&
   text.startsWith('{') &&
   text.endsWith('}');
+
+export const getSequencer = (
+  resolver: string | undefined | null,
+  {filePath, rootDir}: {filePath: string; rootDir: Config.Path},
+) =>
+  resolveWithPrefix(resolver, {
+    filePath,
+    humanOptionName: 'Jest Sequencer',
+    optionName: 'testSequencer',
+    prefix: 'jest-sequencer-',
+    rootDir,
+  });
