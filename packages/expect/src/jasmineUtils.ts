@@ -60,6 +60,35 @@ function asymmetricMatch(a: any, b: any) {
   }
 }
 
+const compareStrings = (a: string, b: string) => {
+  return a == String(b);
+};
+
+const compareNumbers = (a: number, b: number) => {
+  return Object.is(Number(a), Number(b));
+};
+
+const compareDates = (a: Date, b: Date) => {
+  return Object.is(+a, +b);
+};
+
+const compareBooleans = (a: boolean, b: boolean) => {
+  return Object.is(+a, +b);
+};
+
+const compareRegExps = (a: RegExp, b: RegExp) => {
+  return (
+    Object.is(a.source, b.source) &&
+    Object.is(a.global, b.global) &&
+    Object.is(a.multiline, b.multiline) &&
+    Object.is(a.ignoreCase, b.ignoreCase)
+  );
+};
+
+function compareErrors(a: Error, b: Error) {
+  return a.message == b.message;
+}
+
 // Equality function lovingly adapted from isEqual in
 //   [Underscore](http://underscorejs.org)
 function eq(
@@ -85,7 +114,7 @@ function eq(
   }
 
   if (a instanceof Error && b instanceof Error) {
-    return a.message == b.message;
+    return compareErrors(a, b);
   }
 
   if (Object.is(a, b)) {
@@ -104,23 +133,19 @@ function eq(
     case '[object String]':
       // Primitives and their corresponding object wrappers are equivalent; thus, `"5"` is
       // equivalent to `new String("5")`.
-      return a == String(b);
+      return compareStrings(a, b);
     case '[object Number]':
-      return Object.is(Number(a), Number(b));
+      return compareNumbers(a, b);
+    // Coerce dates and booleans to numeric primitive values. Dates are compared by their
+    // millisecond representations. Note that invalid dates with millisecond representations
+    // of `NaN` are not equivalent.
     case '[object Date]':
+      return compareDates(a, b);
     case '[object Boolean]':
-      // Coerce dates and booleans to numeric primitive values. Dates are compared by their
-      // millisecond representations. Note that invalid dates with millisecond representations
-      // of `NaN` are not equivalent.
-      return +a == +b;
+      return compareBooleans(a, b);
     // RegExps are compared by their source patterns and flags.
     case '[object RegExp]':
-      return (
-        a.source == b.source &&
-        a.global == b.global &&
-        a.multiline == b.multiline &&
-        a.ignoreCase == b.ignoreCase
-      );
+      return compareRegExps(a, b);
   }
   if (typeof a != 'object' || typeof b != 'object') {
     return false;

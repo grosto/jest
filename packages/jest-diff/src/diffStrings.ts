@@ -89,7 +89,7 @@ const formatInsert = (
 
 // Given the number of items and starting indexes of a common subsequence,
 // put formatted common lines.
-const formatCommon = (
+export const formatCommon = (
   nCommon: number,
   aCommon: number,
   bCommon: number,
@@ -125,6 +125,7 @@ const diffExpand = (
   aLinesIn: Array<string>,
   bLinesIn: Array<string>,
 ): string => {
+  debugger;
   const isCommon: Callbacks['isCommon'] = (aIndex, bIndex) =>
     aLinesUn[aIndex] === bLinesUn[bIndex];
 
@@ -189,6 +190,7 @@ const diffNoExpand = (
   bLinesIn: Array<string>,
   nContextLines: number,
 ): string => {
+  debugger;
   const isCommon: Callbacks['isCommon'] = (aIndex, bIndex) =>
     aLinesUn[aIndex] === bLinesUn[bIndex];
 
