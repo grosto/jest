@@ -343,6 +343,25 @@ describe('.toStrictEqual()', () => {
         test: new TestClassA(1, 2),
       }).not.toStrictEqual({test: new TestClassA(1, 2)}),
     ).toThrowErrorMatchingSnapshot();
+
+    expect(() =>
+      jestExpect({
+        a: 'a',
+        b: 'b',
+      }).toStrictEqual({
+        a: 'x',
+        b: expect.any(String),
+      }),
+    ).toThrowErrorMatchingSnapshot();
+
+    expect(() =>
+      jestExpect({a: 'a', b: 'b', c: 'c', d: 'd'}).toStrictEqual(
+        expect.objectContaining({
+          a: 'x',
+          b: expect.any(String),
+        }),
+      ),
+    ).toThrowErrorMatchingSnapshot();
   });
 
   it('displays substring diff', () => {
@@ -689,6 +708,39 @@ describe('.toEqual()', () => {
         }),
       );
     }
+  });
+
+  test('failure message matches the expected snapshot', () => {
+    expect(() =>
+      jestExpect({a: 1}).toEqual({a: 2}),
+    ).toThrowErrorMatchingSnapshot();
+
+    expect(() =>
+      jestExpect({a: 1}).not.toEqual({a: 1}),
+    ).toThrowErrorMatchingSnapshot();
+
+    expect(() =>
+      jestExpect({
+        a: 'a',
+        b: 'b',
+      }).toEqual({
+        a: 'x',
+        b: expect.any(String),
+      }),
+    ).toThrowErrorMatchingSnapshot();
+
+    expect(() =>
+      jestExpect({
+        type: 'whatever',
+        payload: {a: 'a', b: 'b', c: 'c', d: 'd'},
+      }).toEqual({
+        type: 'whatever',
+        payload: expect.objectContaining({
+          a: 'x',
+          b: expect.any(String),
+        }),
+      }),
+    ).toThrowErrorMatchingSnapshot();
   });
 
   test('symbol based keys in arrays are processed correctly', () => {
@@ -1950,6 +2002,19 @@ describe('toMatchObject()', () => {
     jestExpect(b).not.toMatchObject(matcher);
     expect(() =>
       jestExpect(b).toMatchObject(matcher),
+    ).toThrowErrorMatchingSnapshot();
+  });
+
+  test('failure message matches the expected snapshot', () => {
+    expect(() =>
+      jestExpect({
+        a: 'a',
+        b: 'b',
+        c: 'c',
+      }).toMatchObject({
+        a: 'x',
+        b: expect.any(String),
+      }),
     ).toThrowErrorMatchingSnapshot();
   });
 });
