@@ -107,7 +107,9 @@ export const getEachHooksForTest = (test: Circus.TestEntry) => {
 
   do {
     const beforeEachForCurrentBlock = [];
-    for (const hook of block.hooks) {
+    // TODO: inline after https://github.com/microsoft/TypeScript/pull/34840 is released
+    let hook: Circus.Hook;
+    for (hook of block.hooks) {
       switch (hook.type) {
         case 'beforeEach':
           beforeEachForCurrentBlock.push(hook);
@@ -349,8 +351,11 @@ export const addErrorToEachTestUnderDescribe = (
   }
 };
 
-export const invariant = (condition: unknown, message?: string) => {
+export function invariant(
+  condition: unknown,
+  message?: string,
+): asserts condition {
   if (!condition) {
     throw new Error(message);
   }
-};
+}

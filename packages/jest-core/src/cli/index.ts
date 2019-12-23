@@ -13,7 +13,7 @@ import {readConfigs} from 'jest-config';
 import Runtime = require('jest-runtime');
 import {ChangedFilesPromise} from 'jest-changed-files';
 import HasteMap = require('jest-haste-map');
-import chalk from 'chalk';
+import chalk = require('chalk');
 import rimraf = require('rimraf');
 import exit = require('exit');
 import {Filter} from '../types';
@@ -122,7 +122,10 @@ const buildContextsAndHasteMaps = async (
       createDirectory(config.cacheDirectory);
       const hasteMapInstance = Runtime.createHasteMap(config, {
         console: new CustomConsole(outputStream, outputStream),
-        maxWorkers: globalConfig.maxWorkers,
+        maxWorkers: Math.max(
+          1,
+          Math.floor(globalConfig.maxWorkers / configs.length),
+        ),
         resetCache: !config.cache,
         watch: globalConfig.watch || globalConfig.watchAll,
         watchman: globalConfig.watchman,

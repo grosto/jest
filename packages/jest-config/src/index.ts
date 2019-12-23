@@ -8,7 +8,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import {Config} from '@jest/types';
-import chalk from 'chalk';
+import chalk = require('chalk');
+import {sync as realpath} from 'realpath-native';
 import {isJSONString, replaceRootDirInPath} from './utils';
 import normalize from './normalize';
 import resolveConfigPath from './resolveConfigPath';
@@ -19,6 +20,7 @@ export {default as deprecationEntries} from './Deprecated';
 export {replaceRootDirInPath} from './utils';
 export {default as defaults} from './Defaults';
 export {default as descriptions} from './Descriptions';
+import {JEST_CONFIG_EXT_ORDER} from './constants';
 
 type ReadConfig = {
   configPath: Config.Path | null | undefined;
@@ -109,6 +111,7 @@ const groupOptions = (
     collectCoverageFrom: options.collectCoverageFrom,
     collectCoverageOnlyFrom: options.collectCoverageOnlyFrom,
     coverageDirectory: options.coverageDirectory,
+    coverageProvider: options.coverageProvider,
     coverageReporters: options.coverageReporters,
     coverageThreshold: options.coverageThreshold,
     detectLeaks: options.detectLeaks,
@@ -116,7 +119,6 @@ const groupOptions = (
     enabledTestsMap: options.enabledTestsMap,
     errorOnDeprecated: options.errorOnDeprecated,
     expand: options.expand,
-    extraGlobals: options.extraGlobals,
     filter: options.filter,
     findRelatedTests: options.findRelatedTests,
     forceExit: options.forceExit,
@@ -278,26 +280,24 @@ export function readConfigs(
     const parsedConfig = readConfig(argv, projects[0]);
     configPath = parsedConfig.configPath;
 
-    if (parsedConfig.globalConfig.projects) {
-      // If this was a single project, and its config has `projects`
-      // settings, use that value instead.
-      projects = parsedConfig.globalConfig.projects;
-    }
-
     hasDeprecationWarnings = parsedConfig.hasDeprecationWarnings;
     globalConfig = parsedConfig.globalConfig;
     configs = [parsedConfig.projectConfig];
     if (globalConfig.projects && globalConfig.projects.length) {
       // Even though we had one project in CLI args, there might be more
       // projects defined in the config.
+      // In other words, if this was a single project,
+      // and its config has `projects` settings, use that value instead.
       projects = globalConfig.projects;
     }
   }
 
-  if (
-    projects.length > 1 ||
-    (projects.length && typeof projects[0] === 'object')
-  ) {
+  if (projects.length > 0) {
+    const projectIsCwd =
+      process.platform === 'win32'
+        ? projects[0] === realpath(process.cwd())
+        : projects[0] === process.cwd();
+
     const parsedConfigs = projects
       .filter(root => {
         // Ignore globbed files that cannot be `require`d.
@@ -305,17 +305,26 @@ export function readConfigs(
           typeof root === 'string' &&
           fs.existsSync(root) &&
           !fs.lstatSync(root).isDirectory() &&
-          !root.endsWith('.js') &&
-          !root.endsWith('.json')
+          !JEST_CONFIG_EXT_ORDER.some(ext => root.endsWith(ext))
         ) {
           return false;
         }
 
         return true;
       })
-      .map((root, projectIndex) =>
-        readConfig(argv, root, true, configPath, projectIndex),
-      );
+      .map((root, projectIndex) => {
+        const projectIsTheOnlyProject =
+          projectIndex === 0 && projects.length === 1;
+        const skipArgvConfigOption = !(projectIsTheOnlyProject && projectIsCwd);
+
+        return readConfig(
+          argv,
+          root,
+          skipArgvConfigOption,
+          configPath,
+          projectIndex,
+        );
+      });
 
     ensureNoDuplicateConfigs(parsedConfigs, projects);
     configs = parsedConfigs.map(({projectConfig}) => projectConfig);

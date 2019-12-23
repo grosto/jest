@@ -10,12 +10,14 @@ import {Config} from '@jest/types';
 
 import {getStackTraceLines, getTopFrame} from 'jest-message-util';
 import {
+  addExtraLineBreaks,
   getSnapshotData,
   keyToTestName,
+  removeExtraLineBreaks,
+  removeLinesBeforeExternalMatcherTrap,
   saveSnapshotFile,
   serialize,
   testNameToKey,
-  unescape,
 } from './utils';
 import {InlineSnapshot, saveInlineSnapshots} from './inline_snapshots';
 import {SnapshotData} from './types';
@@ -29,7 +31,7 @@ export type SnapshotStateOptions = {
 
 export type SnapshotMatchOptions = {
   testName: string;
-  received: any;
+  received: unknown;
   key?: string;
   inlineSnapshot?: string;
   isInline: boolean;
@@ -103,7 +105,9 @@ export default class SnapshotState {
     this._dirty = true;
     if (options.isInline) {
       const error = options.error || new Error();
-      const lines = getStackTraceLines(error.stack || '');
+      const lines = getStackTraceLines(
+        removeLinesBeforeExternalMatcherTrap(error.stack || ''),
+      );
       const frame = getTopFrame(lines);
       if (!frame) {
         throw new Error(
@@ -198,7 +202,7 @@ export default class SnapshotState {
       this._uncheckedKeys.delete(key);
     }
 
-    const receivedSerialized = serialize(received);
+    const receivedSerialized = addExtraLineBreaks(serialize(received));
     const expected = isInline ? inlineSnapshot : this._snapshotData[key];
     const pass = expected === receivedSerialized;
     const hasSnapshot = expected !== undefined;
@@ -253,9 +257,12 @@ export default class SnapshotState {
       if (!pass) {
         this.unmatched++;
         return {
-          actual: unescape(receivedSerialized),
+          actual: removeExtraLineBreaks(receivedSerialized),
           count,
-          expected: expected !== undefined ? unescape(expected) : undefined,
+          expected:
+            expected !== undefined
+              ? removeExtraLineBreaks(expected)
+              : undefined,
           key,
           pass: false,
         };

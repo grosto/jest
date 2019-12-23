@@ -11,12 +11,11 @@
   "types": "build/index.d.ts",
   "dependencies": {
     "@jest/fake-timers": "^24.9.0",
-    "@jest/transform": "^24.9.0",
     "@jest/types": "^24.9.0",
     "jest-mock": "^24.9.0"
   },
   "engines": {
-    "node": ">= 8"
+    "node": ">= 8.3"
   },
   "publishConfig": {
     "access": "public"

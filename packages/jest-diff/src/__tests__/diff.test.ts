@@ -5,12 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import ansiRegex = require('ansi-regex');
-import * as style from 'ansi-styles';
-import chalk from 'chalk';
-import stripAnsi from 'strip-ansi';
+import chalk = require('chalk');
+import stripAnsi = require('strip-ansi');
+import {alignedAnsiStyleSerializer} from '@jest/test-utils';
 
 import diff from '../';
+import {diffLinesUnified, diffLinesUnified2} from '../diffLines';
+import {noColor} from '../normalizeDiffOptions';
 import {diffStringsUnified} from '../printDiffs';
 import {DiffOptions} from '../types';
 
@@ -24,7 +25,6 @@ const NO_DIFF_MESSAGE = 'Compared values have no visual difference.';
 const stripped = (a: unknown, b: unknown) => stripAnsi(diff(a, b) || '');
 
 // Use in toBe assertions for comparison lines.
-const noColor = (string: string) => string;
 const optionsBe: DiffOptions = {
   aColor: noColor,
   bColor: noColor,
@@ -46,45 +46,7 @@ const expanded = {expand: true};
 
 const elementSymbol = Symbol.for('react.element');
 
-expect.addSnapshotSerializer({
-  serialize(val: string): string {
-    return val.replace(ansiRegex(), match => {
-      switch (match) {
-        case style.inverse.open:
-          return '<i>';
-        case style.inverse.close:
-          return '</i>';
-
-        case style.bold.open:
-          return '<b>';
-        case style.dim.open:
-          return '<d>';
-        case style.green.open:
-          return '<g>';
-        case style.red.open:
-          return '<r>';
-        case style.yellow.open:
-          return '<y>';
-        case style.bgYellow.open:
-          return '<Y>';
-
-        case style.bold.close:
-        case style.dim.close:
-        case style.green.close:
-        case style.red.close:
-        case style.yellow.close:
-        case style.bgYellow.close:
-          return '</>';
-
-        default:
-          return match;
-      }
-    });
-  },
-  test(val: any): val is string {
-    return typeof val === 'string';
-  },
-});
+expect.addSnapshotSerializer(alignedAnsiStyleSerializer);
 
 describe('different types', () => {
   [
@@ -113,7 +75,10 @@ describe('no visual difference', () => {
     ['a', 'a'],
     [{}, {}],
     [[], []],
-    [[1, 2], [1, 2]],
+    [
+      [1, 2],
+      [1, 2],
+    ],
     [11, 11],
     [NaN, NaN],
     [Number.NaN, NaN],
@@ -132,8 +97,14 @@ describe('no visual difference', () => {
   });
 
   test('Map key order should be irrelevant', () => {
-    const arg1 = new Map([[1, 'foo'], [2, 'bar']]);
-    const arg2 = new Map([[2, 'bar'], [1, 'foo']]);
+    const arg1 = new Map([
+      [1, 'foo'],
+      [2, 'bar'],
+    ]);
+    const arg2 = new Map([
+      [2, 'bar'],
+      [1, 'foo'],
+    ]);
 
     expect(stripped(arg1, arg2)).toBe(NO_DIFF_MESSAGE);
   });
@@ -699,7 +670,7 @@ describe('trailing newline in multiline string not enclosed in quotes', () => {
   const b = a + '\n';
 
   describe('from less to more', () => {
-    const expected = ['  line 1', '  line 2', '  line 3', '+ '].join('\n');
+    const expected = ['  line 1', '  line 2', '  line 3', '+'].join('\n');
 
     test('(unexpanded)', () => {
       expect(diff(a, b, unexpandedBe)).toBe(expected);
@@ -710,7 +681,7 @@ describe('trailing newline in multiline string not enclosed in quotes', () => {
   });
 
   describe('from more to less', () => {
-    const expected = ['  line 1', '  line 2', '  line 3', '- '].join('\n');
+    const expected = ['  line 1', '  line 2', '  line 3', '-'].join('\n');
 
     test('(unexpanded)', () => {
       expect(diff(b, a, unexpandedBe)).toBe(expected);
@@ -765,6 +736,156 @@ describe('context', () => {
   testDiffContextLines(2);
   testDiffContextLines(3.1); // (5 default)
   testDiffContextLines(); // (5 default)
+});
+
+describe('diffLinesUnified edge cases', () => {
+  test('a empty string b empty string', () => {
+    const a = '';
+    const b = '';
+
+    const received = diffLinesUnified(a.split('\n'), b.split('\n'), optionsBe);
+    const expected = '';
+
+    expect(received).toBe(expected);
+  });
+
+  test('a empty string b one line', () => {
+    const a = '';
+    const b = 'line 1';
+
+    const received = diffLinesUnified(a.split('\n'), b.split('\n'), optionsBe);
+    const expected = '+ line 1';
+
+    expect(received).toBe(expected);
+  });
+
+  test('a multiple lines b empty string', () => {
+    const a = 'line 1\n\nline 3';
+    const b = '';
+
+    const received = diffLinesUnified(a.split('\n'), b.split('\n'), optionsBe);
+    const expected = '- line 1\n-\n- line 3';
+
+    expect(received).toBe(expected);
+  });
+
+  test('a one line b multiple lines', () => {
+    const a = 'line 2';
+    const b = 'line 1\nline 2\nline 3';
+
+    const received = diffLinesUnified(a.split('\n'), b.split('\n'), optionsBe);
+    const expected = '+ line 1\n  line 2\n+ line 3';
+
+    expect(received).toBe(expected);
+  });
+});
+
+describe('diffLinesUnified2 edge cases', () => {
+  test('a empty string b empty string', () => {
+    const a = '';
+    const b = '';
+
+    const received = diffLinesUnified2(
+      a.split('\n'),
+      b.split('\n'),
+      a.split('\n'),
+      b.split('\n'),
+      optionsBe,
+    );
+    const expected = '';
+
+    expect(received).toBe(expected);
+  });
+
+  test('a empty string b one line', () => {
+    const a = '';
+    const b = 'line 1';
+
+    const received = diffLinesUnified2(
+      a.split('\n'),
+      b.split('\n'),
+      a.split('\n'),
+      b.split('\n'),
+      optionsBe,
+    );
+    const expected = '+ line 1';
+
+    expect(received).toBe(expected);
+  });
+
+  test('a multiple lines b empty string', () => {
+    const a = 'line 1\n\nline 3';
+    const b = '';
+
+    const received = diffLinesUnified2(
+      a.split('\n'),
+      b.split('\n'),
+      a.split('\n'),
+      b.split('\n'),
+      optionsBe,
+    );
+    const expected = '- line 1\n-\n- line 3';
+
+    expect(received).toBe(expected);
+  });
+
+  test('a one line b multiple lines', () => {
+    const aDisplay = 'LINE 2';
+    const bDisplay = 'Line 1\nLine 2\nLine 3';
+    const aCompare = aDisplay.toLowerCase();
+    const bCompare = bDisplay.toLowerCase();
+
+    const received = diffLinesUnified2(
+      aDisplay.split('\n'),
+      bDisplay.split('\n'),
+      aCompare.split('\n'),
+      bCompare.split('\n'),
+      optionsBe,
+    );
+    const expected = '+ Line 1\n  Line 2\n+ Line 3';
+
+    expect(received).toBe(expected);
+  });
+
+  describe('lengths not equal', () => {
+    // Fall back to diff of display lines.
+
+    test('a', () => {
+      const aDisplay = 'MiXeD cAsE';
+      const bDisplay = 'Mixed case\nUPPER CASE';
+      const aCompare = aDisplay.toLowerCase() + '\nlower case';
+      const bCompare = bDisplay.toLowerCase();
+
+      const received = diffLinesUnified2(
+        aDisplay.split('\n'),
+        bDisplay.split('\n'),
+        aCompare.split('\n'),
+        bCompare.split('\n'),
+        optionsBe,
+      );
+      const expected = '- MiXeD cAsE\n+ Mixed case\n+ UPPER CASE';
+
+      expect(received).toBe(expected);
+    });
+
+    test('b', () => {
+      const aDisplay = '{\n  "key": "value",\n}';
+      const bDisplay = '{\n}';
+      const aCompare = '{\n"key": "value",\n}';
+      const bCompare = '{}';
+
+      const expected = '  {\n-   "key": "value",\n  }';
+      const received = diffLinesUnified2(
+        aDisplay.split('\n'),
+        bDisplay.split('\n'),
+        aCompare.split('\n'),
+        bCompare.split('\n'),
+        optionsBe,
+      );
+
+      expect(received).toBe(expected);
+    });
+  });
 });
 
 describe('diffStringsUnified edge cases', () => {
@@ -944,16 +1065,52 @@ describe('options', () => {
       'insert 1 trailing space: ',
     ].join('\n');
 
-    test('diffDefault default yellowish', () => {
+    test('diffDefault default no color', () => {
       expect(diff(aTrailingSpaces, bTrailingSpaces)).toMatchSnapshot();
     });
 
     test('diffDefault middle dot', () => {
+      const replaceSpacesWithMiddleDot = string => '·'.repeat(string.length);
       const options = {
-        trailingSpaceFormatter: string => '·'.repeat(string.length),
+        changeLineTrailingSpaceColor: replaceSpacesWithMiddleDot,
+        commonLineTrailingSpaceColor: replaceSpacesWithMiddleDot,
       };
 
       expect(diff(aTrailingSpaces, bTrailingSpaces, options)).toMatchSnapshot();
+    });
+
+    test('diffDefault yellowish common', () => {
+      const options = {
+        commonLineTrailingSpaceColor: chalk.bgYellow,
+      };
+
+      expect(diff(aTrailingSpaces, bTrailingSpaces, options)).toMatchSnapshot();
+    });
+  });
+
+  describe('emptyFirstOrLastLinePlaceholder default empty string', () => {
+    const options = {
+      ...optionsBe,
+      changeColor: noColor,
+    };
+
+    const aEmpty = '\ncommon\nchanged from\n';
+    const bEmpty = '\ncommon\nchanged to\n';
+
+    const expected = [
+      '',
+      '  common',
+      '- changed from',
+      '+ changed to',
+      '',
+    ].join('\n');
+
+    test('diffDefault', () => {
+      expect(diff(aEmpty, bEmpty, options)).toBe(expected);
+    });
+
+    test('diffStringsUnified', () => {
+      expect(diffStringsUnified(aEmpty, bEmpty, options)).toBe(expected);
     });
   });
 });

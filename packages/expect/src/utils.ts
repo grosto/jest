@@ -111,6 +111,7 @@ export const getObjectSubset = (
 ): any => {
   if (Array.isArray(object)) {
     if (Array.isArray(subset) && subset.length === object.length) {
+      // The map method returns correct subclass of subset.
       return subset.map((sub: any, i: number) =>
         getObjectSubset(object[i], sub),
       );
@@ -118,6 +119,11 @@ export const getObjectSubset = (
   } else if (object instanceof Date) {
     return object;
   } else if (isObject(object) && isObject(subset)) {
+    if (equals(object, subset, [iterableEquality, subsetEquality])) {
+      // Avoid unnecessary copy which might return Object instead of subclass.
+      return subset;
+    }
+
     const trimmed: any = {};
     seenReferences.set(object, trimmed);
 
@@ -160,7 +166,6 @@ export const iterableEquality = (
   if (a.constructor !== b.constructor) {
     return false;
   }
-
   let length = aStack.length;
   while (length--) {
     // Linear search. Performance is inversely proportional to the number of
@@ -284,20 +289,25 @@ export const subsetEquality = (
 
     return Object.keys(subset).every(key => {
       if (isObjectWithKeys(subset[key])) {
-        if (seenReferences.get(subset[key])) {
+        if (seenReferences.has(subset[key])) {
           return equals(object[key], subset[key], [iterableEquality]);
         }
         seenReferences.set(subset[key], true);
       }
-
-      return (
+      const result =
         object != null &&
         hasOwnProperty(object, key) &&
         equals(object[key], subset[key], [
           iterableEquality,
           subsetEqualityWithContext(seenReferences),
-        ])
-      );
+        ]);
+      // The main goal of using seenReference is to avoid circular node on tree.
+      // It will only happen within a parent and its child, not a node and nodes next to it (same level)
+      // We should keep the reference for a parent and its child only
+      // Thus we should delete the reference immediately so that it doesn't interfere
+      // other nodes within the same level on tree.
+      seenReferences.delete(subset[key]);
+      return result;
     });
   };
 
