@@ -1,0 +1,15 @@
+{
+  "name": "jest-deep-diff",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/facebook/jest",
+    "directory": "packages/jest-core"
+  },
+  "bugs": {
+    "url": "https://github.com/facebook/jest/issues"
+  },
+  "homepage": "https://jestjs.io/",
+  "license": "MIT"
+}
