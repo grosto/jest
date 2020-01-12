@@ -88,10 +88,6 @@ function getComplexValueDiffResult(
   );
 }
 
-function hasDefinedKey(obj: any, key: string) {
-  return hasKey(obj, key) && obj[key] !== undefined;
-}
-
 function hasKey(obj: any, key: string) {
   return Object.prototype.hasOwnProperty.call(obj, key);
 }
@@ -100,7 +96,7 @@ function getKeys(obj: object) {
   const allKeys = (function(o) {
     const keys = [];
     for (const key in o) {
-      if (hasDefinedKey(o, key)) {
+      if (hasKey(o, key)) {
         keys.push(key);
       }
     }

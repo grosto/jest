@@ -1,7 +1,12 @@
 import prettyFormat = require('pretty-format');
+import diffString from 'jest-diff';
 import {DiffResult, ValuesDiff} from './deepDiff';
 
 const DEFAULT_INDENT = '  ';
+
+const COMMON_LINE_PREFIX = '  ';
+const INSERTED_PREFIX = '+ ';
+const DELETED_PREFIX = '- ';
 
 // printers
 function printValue(path: ValuesDiff['path'], value: unknown) {
@@ -9,19 +14,19 @@ function printValue(path: ValuesDiff['path'], value: unknown) {
 }
 
 const printEqual = (diff: ValuesDiff, indent: string) =>
-  ' ' + indent + printValue(diff.path, diff.a);
+  COMMON_LINE_PREFIX + indent + printValue(diff.path, diff.a);
 
 const printInserted = (diff: ValuesDiff, indent: string) =>
-  '-' + indent + printValue(diff.path, diff.b);
+  INSERTED_PREFIX + indent + printValue(diff.path, diff.b);
 
 const printDeleted = (diff: ValuesDiff, indent: string) =>
-  '+' + indent + printValue(diff.path, diff.a);
+  DELETED_PREFIX + indent + printValue(diff.path, diff.a);
 
 const printUpdated = (diff: ValuesDiff, indent: string) =>
-  printInserted(diff, indent) +
+  printDeleted(diff, indent) +
   (diff.path ? ',' : '') +
   '\n' +
-  printDeleted(diff, indent);
+  printInserted(diff, indent);
 
 // formatters
 const getConstructorName = (val: new (...args: Array<any>) => any) =>
@@ -30,7 +35,7 @@ const getConstructorName = (val: new (...args: Array<any>) => any) =>
 function formatObjectProperties(
   propertyDiffs: Array<ValuesDiff>,
   indent: string,
-  formatter: Formater,
+  formatter: Formatter,
 ): string {
   const nextIndent = indent + DEFAULT_INDENT;
   const result = propertyDiffs
@@ -42,7 +47,8 @@ function formatObjectProperties(
 
 function formatObject(diff: ValuesDiff, indent: string) {
   const firstLine =
-    (diff.path ? indent + ' ' + prettyFormat(diff.path) + ': ' : '') +
+    COMMON_LINE_PREFIX +
+    (diff.path ? indent + prettyFormat(diff.path) + ': ' : '') +
     getConstructorName(diff.a as any) +
     ' {';
 
@@ -50,22 +56,19 @@ function formatObject(diff: ValuesDiff, indent: string) {
     ? formatObjectProperties(diff.propertyDiffs, indent, formatter)
     : ' ';
 
-  const lastLine = diff.path ? ' }' : '}';
+  const lastLine = COMMON_LINE_PREFIX + '}';
 
   return firstLine + formattedPropertyDiffsResults + lastLine;
 }
 
-type Formater = (diff: ValuesDiff, indent?: string) => string;
+type Formatter = (diff: ValuesDiff, indent?: string) => string;
 
-const formatter: Formater = (diff, indent = '') => {
+const formatter: Formatter = (diff, indent = '') => {
   if (diff.diffResult === DiffResult.EQUAL) {
     if (typeof diff.path !== 'undefined') {
       return printEqual(diff, indent);
     }
     return 'no differences';
-  }
-
-  if (diff.propertyDiffs) {
   }
 
   if (diff.diffResult === DiffResult.INSERTED) {
@@ -76,8 +79,24 @@ const formatter: Formater = (diff, indent = '') => {
     return printDeleted(diff, indent);
   }
 
+  if (diff.diffResult === DiffResult.TYPE_UNEQUAL) {
+    return printUpdated(diff, indent);
+  }
+
   if (diff.diffResult === DiffResult.UPDATED) {
     if (typeof diff.propertyDiffs === 'undefined') {
+      if (typeof diff.a === 'string') {
+        // TODO
+        const b = diff.b as string;
+        const diffRs = diffString(diff.a, b, {
+          aColor: (string: string) => string,
+          bColor: (string: string) => string,
+          commonColor: (string: string) => string,
+          omitAnnotationLines: true,
+        });
+        if (diffRs) return printValue(diff.path, diffRs);
+      }
+
       return printUpdated(diff, indent);
     }
 
