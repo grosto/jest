@@ -57,8 +57,7 @@ const createInserted = (a: unknown, b: unknown, path: Key | undefined) =>
 
 const compareStrings = (a: string, b: string) => a == String(b);
 
-const compareNumbers = (a: number, b: number) =>
-  Object.is(Number(a), Number(b));
+const compareNumbers = (a: number, b: number) => Object.is(a, b);
 
 const compareDatesAndBooleans = (a: Date | boolean, b: Date | boolean) =>
   +a == +b;

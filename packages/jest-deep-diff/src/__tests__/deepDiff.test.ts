@@ -9,6 +9,14 @@ describe('compare()', () => {
       [0, -0],
       [0, Number.MIN_VALUE], // issues/7941
       [Number.MIN_VALUE, 0],
+      [0, new Number(0)],
+      [new Number(0), 0],
+      [new Number(0), new Number(1)],
+      ['abc', new String('abc')],
+      [new String('abc'), 'abc'],
+      [/abc/gsy, /abc/g],
+      [{a: 1}, {a: 2}],
+      [{a: 5}, {b: 6}],
       ['banana', 'apple'],
     ].forEach(([a, b]) => {
       test(`${stringify(a)} is not equal to ${stringify(b)}`, () => {

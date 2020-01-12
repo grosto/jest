@@ -34,7 +34,8 @@ describe('formatter', () => {
 
       expect(formatter(deepDiff(a, b))).toEqual(expected);
     });
-    describe('multiline string as value of object property', () => {
+
+    describe.skip('multiline string as value of object property', () => {
       const expected = [
         '  Object {',
         '    "id": "J",',
@@ -73,7 +74,7 @@ describe('formatter', () => {
   });
 });
 
-describe('multiline strings', () => {
+describe.skip('multiline strings', () => {
   const a = `line 1
 line 2
 line 3

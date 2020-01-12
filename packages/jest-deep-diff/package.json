@@ -11,6 +11,7 @@
     "url": "https://github.com/facebook/jest/issues"
   },
   "dependencies": {
+    "chalk": "^3.0.0",
     "pretty-format": "^24.9.0",
     "jest-diff": "^24.9.0"
   },
