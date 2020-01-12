@@ -1,11 +1,15 @@
 {
-  "editor.rulers": [80],
+  "editor.rulers": [
+    80
+  ],
   "files.exclude": {
     "**/.git": true,
     "**/node_modules": true,
     "**/build": true
   },
-  "eslint.autoFixOnSave": true,
   "javascript.validate.enable": false,
-  "jest.pathToJest": "yarn jest --"
+  "jest.pathToJest": "yarn jest --",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  }
 }

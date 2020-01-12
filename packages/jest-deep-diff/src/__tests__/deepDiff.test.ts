@@ -1,5 +1,5 @@
 import {stringify} from 'jest-matcher-utils';
-import compare, {DiffResult, ValuesDiff} from '../diff';
+import compare, {DiffResult, ValuesDiff} from '../deepDiff';
 
 describe('compare()', () => {
   describe('primitives', () => {
